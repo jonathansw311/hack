@@ -46,17 +46,27 @@ function addStory(e){
 
 $body.on("click", "#submit", addStory);
 
-
+// when fav links is clicked on the following runs
 function favoriteLinks(){
   $allStoriesList.empty() 
   $addStoryForm.hide()
   $signupForm.hide()
-  console.log(storyList)
-  console.log(currentUser.favorites)
-  //reLogin()
   let favstories = new StoryList(currentUser.favorites)
-  console.log(favstories)
   getAndShowStoriesForFavs(favstories);//this goes to the stories js. to load favs on page
 }
 $body.on("click", "#favoriteLinks", favoriteLinks);
+
+//my storys button
+function myStoriesLink(){
+  let myStory = true;
+  $allStoriesList.empty() 
+  $addStoryForm.hide()
+  $signupForm.hide()
+   
+  let ownStories = new StoryList(currentUser.ownStories)
+  getAndShowStoriesForFavs(ownStories, myStory) //this goes to stories.js
+}
+
+
+$body.on("click", "#myStoriesLink", myStoriesLink);
 

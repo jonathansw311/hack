@@ -23,9 +23,36 @@ class Story {
 
   /** Parses hostname out of URL and returns it. */
 
-  getHostName() {
+  getHostName(url) {
     // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+      let stepOne= remFirstSlash(url)
+      let stepTwo= remWWW(stepOne)
+      let stepThree = clipEnd(stepTwo)
+            
+      function remFirstSlash(url){ 
+      let idx = (url.indexOf('//')+2)
+      let host = url.slice(idx, url.length)
+      return host 
+  }
+      function remWWW(stepOne){
+      let www = stepOne.indexOf('www')   
+      if(www===0){
+          let stripped = stepOne.slice(4, stepOne.length)
+          return stripped
+    }
+    return stepOne
+  }
+  function clipEnd(stepTwo){
+    let ending = stepTwo.indexOf('/')
+    if (ending>0){
+      let stripped = stepTwo.slice(0, ending)
+      return stripped
+    }
+    return stepTwo;
+  }     
+  
+  return stepThree;
+  
   }
 }
 
@@ -217,24 +244,13 @@ class User {
       return null;
     }
   }
-
+// the below code adds favorite stories
   async addFav(favStoryId) {
-  let abc = {}
-    let response = await axios.post(`${BASE_URL}/users/${currentUser.username}/favorites/${favStoryId}`, {"token": currentUser.loginToken})
-  let usersNewFavList = response.data.user;
-    let refracusersNewFav = new StoryList(usersNewFavList)
+    let response = await axios.post(`${BASE_URL}/users/${currentUser.username}/favorites/${favStoryId}`, {"token": currentUser.loginToken})// first we post fav stories to the API
+  let usersNewFavList = response.data.user;// the response is put into a new list
+  
    
-   for(let s of refracusersNewFav.stories.favorites){
-    let count = 0;
-    abc[count] = new Story(s);
-  count++}
-
-
-    console.log(refracusersNewFav.stories.favorites)
-    console.log(abc)
-    console.log(refracusersNewFav)
-   console.log(response.data.user)
-    const lastAdded=(usersNewFavList.favorites.length-1)
+   const lastAdded=(usersNewFavList.favorites.length-1)//the last story to be added in the api is loaded into an object
    
    let favs = {storyId: usersNewFavList.favorites[lastAdded].storyId,
                 author: usersNewFavList.favorites[lastAdded].author,
@@ -243,33 +259,38 @@ class User {
                 url: usersNewFavList.favorites[lastAdded].url,
                 username: usersNewFavList.favorites[lastAdded].username
               }
-
-  //  currentUser.favorites.push(favs);
-   return new User(
-    {
-      username: usersNewFavList.username,
-      name: usersNewFavList.name,
-      createdAt: usersNewFavList.createdAt,
-      favorites: usersNewFavList.favorites,
-      ownStories: usersNewFavList.stories
-    },
-    response.data.token
-  );
- 
+  let favss = new Story(favs)//an instance of that story is made
+   currentUser.favorites.push(favss);//and pushed into the current user so the webpage displays correctly
+  
   }
-
+//the follow function deletes a favorite story from the CurrentUser
   async delFav(favStoryId) {
     let newFavField = {}
     
-    let response = await axios.delete(`${BASE_URL}/users/${currentUser.username}/favorites/${favStoryId}`, {data: {"token": currentUser.loginToken}})
+    let response = await axios.delete(`${BASE_URL}/users/${currentUser.username}/favorites/${favStoryId}`, {data: {"token": currentUser.loginToken}})// the story to be deleted is pushed to the api
   
-   console.log(response.data.user)
-   newFavField =  response.data.user.favorites.map(c => c)
-   currentUser.favorites = newFavField
-    console.log(currentUser.favorites)
+   
+   newFavField =  response.data.user.favorites.map(c => c)//teh new favorites list is sent to make into instances of story and pushed into current user so website is updated
+   let insertNewFavs=[];
+   for(let refracNav of newFavField){
+   let refracNavi = new Story(refracNav)
+  insertNewFavs.push(refracNavi)}
+   
+  currentUser.favorites = insertNewFavs;
+   
     
   }
-
-
+// the following code deletes a user story from the list
+  async delStoryFunc(delStoryID){
+    let storyobj ={};
+    // the story is delted from teh API. Unlike  calls to the favorites a new updated list is not sent back from the API, just conformation the story has been deleted
+    await axios.delete(`https://hack-or-snooze-v3.herokuapp.com/stories/${delStoryID}` ,{data:{"token": currentUser.loginToken}})     
+    let newOwnStoryList =currentUser.ownStories.filter(story =>story.storyId != delStoryID )//the story is removed from current User and sotryList
+    let newstoryList = storyList.stories.filter(story => story.storyId != delStoryID)
+    storyobj = new StoryList(newstoryList)
+    storyList=storyobj;
+    currentUser.ownStories = newOwnStoryList;
+ 
+  }
 
 }

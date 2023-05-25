@@ -40,11 +40,14 @@ async function getAndShowStoriesForFavs(Favs, myStory) {
 function generateStoryMarkup(story, myStory) {
   // console.debug("generateStoryMarkup", story);
   favIds=[];
-  for(let favId of currentUser.favorites){
-    favIds.push(favId.storyId)
-   
-    }
-
+  
+  
+  if(currentUser != undefined){
+   for(let favId of currentUser.favorites){
+     favIds.push(favId.storyId)
+ 
+}}
+    
  const hostName = story.getHostName(story.url);//models 26
 
 let checkedHTML="";
